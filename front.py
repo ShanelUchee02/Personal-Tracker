@@ -50,26 +50,28 @@ lbl_income = tk.Label(root, text="Enter Income:", font=("Arial", 12))
 lbl_income.pack()
 entry_income = tk.Entry(root, font=("Arial", 12))   # define entry_income
 entry_income.pack(pady=5)
-btn_income = tk.Button(root, text="Add Income", command=add_income, width=15)
-btn_income.pack(pady=5)
 
 income_var = tk.StringVar(value="Salary")
 income_categories = ["Salary", "Bonus", "Gift", "Other"]
 dropdown_income = tk.OptionMenu(root, income_var, *income_categories)
 dropdown_income.pack(pady=5)
 
+btn_income = tk.Button(root, text="Add Income", command=add_income, width=15)
+btn_income.pack(pady=5)
+
 # Expense section
 lbl_expense = tk.Label(root, text="Enter Expense:", font=("Arial", 12))
 lbl_expense.pack()
 entry_expense = tk.Entry(root, font=("Arial", 12))   # define entry_expense
 entry_expense.pack(pady=5)
-btn_expense = tk.Button(root, text="Add Expense", command=add_expense, width=15)
-btn_expense.pack(pady=5)
 
 expense_var = tk.StringVar(value="Food")
 expense_categories = ["Food", "Transport", "Entertainment", "Bills", "Other"]
 dropdown_expense = tk.OptionMenu(root, expense_var, *expense_categories)
 dropdown_expense.pack(pady=5)
+
+btn_expense = tk.Button(root, text="Add Expense", command=add_expense, width=15)
+btn_expense.pack(pady=5)
 
 # Transactions list
 listbox = tk.Listbox(root, width=40, height=10, font=("Arial", 10))
