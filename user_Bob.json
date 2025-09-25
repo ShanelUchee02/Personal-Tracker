@@ -1,0 +1,15 @@
+{
+    "balance": 1100.0,
+    "transactions": [
+        [
+            "Income",
+            1000.0,
+            "Salary"
+        ],
+        [
+            "Income",
+            100.0,
+            "Salary"
+        ]
+    ]
+}
