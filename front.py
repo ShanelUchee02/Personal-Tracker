@@ -1,6 +1,13 @@
 import tkinter as tk
 from tkinter import messagebox
 
+#adding theme
+Bkg_color = "#cfe2f5"
+fg_color = "#0C0B0B"
+btn_color = "#3B75F1"
+btn_text_color = "#ffffff"
+entry_box = "#ffffff"
+
 balance = 0
 transactions = []
 
@@ -40,6 +47,7 @@ def update_ui():
 # GUI setup
 root = tk.Tk()
 root.title("Expense Tracker")
+root.configure(bg=Bkg_color)
 
 # Balance label
 lbl_balance = tk.Label(root, text=f"Balance: R{balance:.2f}", font=("Arial", 16, "bold"))
@@ -56,7 +64,7 @@ income_categories = ["Salary", "Bonus", "Gift", "Other"]
 dropdown_income = tk.OptionMenu(root, income_var, *income_categories)
 dropdown_income.pack(pady=5)
 
-btn_income = tk.Button(root, text="Add Income", command=add_income, width=15)
+btn_income = tk.Button(root, text="Add Income", command=add_income, width=15, bg=btn_color, fg=btn_text_color)
 btn_income.pack(pady=5)
 
 # Expense section
@@ -70,7 +78,7 @@ expense_categories = ["Food", "Transport", "Entertainment", "Bills", "Other"]
 dropdown_expense = tk.OptionMenu(root, expense_var, *expense_categories)
 dropdown_expense.pack(pady=5)
 
-btn_expense = tk.Button(root, text="Add Expense", command=add_expense, width=15)
+btn_expense = tk.Button(root, text="Add Expense", command=add_expense, width=15,  bg=btn_color, fg=btn_text_color)
 btn_expense.pack(pady=5)
 
 # Transactions list
