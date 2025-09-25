@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, ttk
 import matplotlib.pyplot as plt
 import json
 import os
@@ -104,56 +104,71 @@ def login():
     login_frame.destroy()
     show_main_app()
 
-# --- Main App ---
+# --- Main App with Tabs ---
 def show_main_app():
     global lbl_balance, entry_income, entry_expense, listbox, income_var, expense_var
 
-    # Balance label
-    lbl_balance = tk.Label(root, text=f"Balance: R{balance:.2f}",
-                           font=("Helvetica", 18, "bold"), fg=FG_COLOR, bg=BG_COLOR)
-    lbl_balance.pack(pady=10)
+    # Notebook (Tabs)
+    notebook = ttk.Notebook(root)
+    notebook.pack(expand=True, fill="both")
 
-    # Income section
-    lbl_income = tk.Label(root, text="Enter Income:", font=("Helvetica", 12),
+    # --- Income Tab ---
+    income_tab = tk.Frame(notebook, bg=BG_COLOR)
+    notebook.add(income_tab, text="Income")
+
+    lbl_income = tk.Label(income_tab, text="Enter Income:", font=("Helvetica", 12),
                           fg=FG_COLOR, bg=BG_COLOR)
-    lbl_income.pack()
-    entry_income = tk.Entry(root, font=("Helvetica", 12), bg=ENTRY_BG)
+    lbl_income.pack(pady=5)
+    entry_income = tk.Entry(income_tab, font=("Helvetica", 12), bg=ENTRY_BG)
     entry_income.pack(pady=5)
 
     income_var = tk.StringVar(value="Salary")
     income_categories = ["Salary", "Bonus", "Gift", "Other"]
-    income_menu = tk.OptionMenu(root, income_var, *income_categories)
+    income_menu = tk.OptionMenu(income_tab, income_var, *income_categories)
     income_menu.pack(pady=5)
 
-    btn_income = tk.Button(root, text="Add Income", command=add_income,
+    btn_income = tk.Button(income_tab, text="Add Income", command=add_income,
                            width=15, bg=BTN_COLOR, fg=BTN_TEXT, font=("Helvetica", 12, "bold"))
-    btn_income.pack(pady=5)
+    btn_income.pack(pady=10)
 
-    # Expense section
-    lbl_expense = tk.Label(root, text="Enter Expense:", font=("Helvetica", 12),
+    # --- Expense Tab ---
+    expense_tab = tk.Frame(notebook, bg=BG_COLOR)
+    notebook.add(expense_tab, text="Expenses")
+
+    lbl_expense = tk.Label(expense_tab, text="Enter Expense:", font=("Helvetica", 12),
                            fg=FG_COLOR, bg=BG_COLOR)
-    lbl_expense.pack()
-    entry_expense = tk.Entry(root, font=("Helvetica", 12), bg=ENTRY_BG)
+    lbl_expense.pack(pady=5)
+    entry_expense = tk.Entry(expense_tab, font=("Helvetica", 12), bg=ENTRY_BG)
     entry_expense.pack(pady=5)
 
     expense_var = tk.StringVar(value="Food")
     expense_categories = ["Food", "Transport", "Rent", "Entertainment", "Other"]
-    expense_menu = tk.OptionMenu(root, expense_var, *expense_categories)
+    expense_menu = tk.OptionMenu(expense_tab, expense_var, *expense_categories)
     expense_menu.pack(pady=5)
 
-    btn_expense = tk.Button(root, text="Add Expense", command=add_expense,
+    btn_expense = tk.Button(expense_tab, text="Add Expense", command=add_expense,
                             width=15, bg="#f44336", fg=BTN_TEXT, font=("Helvetica", 12, "bold"))
-    btn_expense.pack(pady=5)
+    btn_expense.pack(pady=10)
 
-    # Transactions list
-    listbox = tk.Listbox(root, width=50, height=12, font=("Helvetica", 11),
+    # --- Transactions Tab ---
+    transactions_tab = tk.Frame(notebook, bg=BG_COLOR)
+    notebook.add(transactions_tab, text="Transactions")
+
+    lbl_balance = tk.Label(transactions_tab, text=f"Balance: R{balance:.2f}",
+                           font=("Helvetica", 16, "bold"), fg=FG_COLOR, bg=BG_COLOR)
+    lbl_balance.pack(pady=10)
+
+    listbox = tk.Listbox(transactions_tab, width=50, height=12, font=("Helvetica", 11),
                          bg="#ffffff", fg="#333333", highlightbackground="#ccc")
     listbox.pack(pady=10)
 
-    # Report button
-    btn_report = tk.Button(root, text="View Expense Report", command=view_report,
+    # --- Report Tab ---
+    report_tab = tk.Frame(notebook, bg=BG_COLOR)
+    notebook.add(report_tab, text="Report")
+
+    btn_report = tk.Button(report_tab, text="View Expense Report", command=view_report,
                            width=20, bg="#2196F3", fg="white", font=("Helvetica", 12, "bold"))
-    btn_report.pack(pady=5)
+    btn_report.pack(pady=30)
 
     update_ui()
 
@@ -161,10 +176,11 @@ def show_main_app():
 root = tk.Tk()
 root.title("Expense Tracker")
 root.configure(bg=BG_COLOR)
+root.geometry("500x500")
 
 # --- Login Frame ---
 login_frame = tk.Frame(root, bg=BG_COLOR, pady=20)
-login_frame.pack()
+login_frame.pack(expand=True)
 
 lbl_username = tk.Label(login_frame, text="Enter your username:", font=("Helvetica", 12),
                         fg=FG_COLOR, bg=BG_COLOR)

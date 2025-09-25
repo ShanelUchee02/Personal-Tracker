@@ -1,5 +1,5 @@
 {
-    "balance": 3400.0,
+    "balance": 5400.0,
     "transactions": [
         [
             "Income",
@@ -20,6 +20,11 @@
             "Expense",
             300.0,
             "Transport"
+        ],
+        [
+            "Income",
+            2000.0,
+            "Bonus"
         ]
     ]
 }
