@@ -5,9 +5,9 @@ import json
 import os
 
 # --- Theme Colors (CSS-like) ---
-BG_COLOR = "#f0f4f8"
-FG_COLOR = "#333333"
-BTN_COLOR = "#4CAF50"
+BG_COLOR = "#c1dffd"
+FG_COLOR = "#0A0000"
+BTN_COLOR = "#1A54F5"
 BTN_TEXT = "#ffffff"
 ENTRY_BG = "#ffffff"
 
@@ -122,10 +122,15 @@ def show_main_app():
     entry_income = tk.Entry(income_tab, font=("Helvetica", 12), bg=ENTRY_BG)
     entry_income.pack(pady=5)
 
-    income_var = tk.StringVar(value="Salary")
+    lbl_income_cat = tk.Label(income_tab, text="Choose Category:", font=("Helvetica", 12),
+                              fg=FG_COLOR, bg=BG_COLOR)
+    lbl_income_cat.pack(pady=5)
+
     income_categories = ["Salary", "Bonus", "Gift", "Other"]
-    income_menu = tk.OptionMenu(income_tab, income_var, *income_categories)
-    income_menu.pack(pady=5)
+    for cat in income_categories:
+        btn = tk.Button(income_tab, text=cat, command=lambda c=cat: add_income(c),
+                        width=15, bg=BTN_COLOR, fg=BTN_TEXT, font=("Helvetica", 12, "bold"))
+        btn.pack(pady=3)
 
     btn_income = tk.Button(income_tab, text="Add Income", command=add_income,
                            width=15, bg=BTN_COLOR, fg=BTN_TEXT, font=("Helvetica", 12, "bold"))
@@ -140,11 +145,15 @@ def show_main_app():
     lbl_expense.pack(pady=5)
     entry_expense = tk.Entry(expense_tab, font=("Helvetica", 12), bg=ENTRY_BG)
     entry_expense.pack(pady=5)
+    lbl_expense_cat = tk.Label(expense_tab, text="Choose Category:", font=("Helvetica", 12),
+                               fg=FG_COLOR, bg=BG_COLOR)
+    lbl_expense_cat.pack(pady=5)
 
-    expense_var = tk.StringVar(value="Food")
     expense_categories = ["Food", "Transport", "Rent", "Entertainment", "Other"]
-    expense_menu = tk.OptionMenu(expense_tab, expense_var, *expense_categories)
-    expense_menu.pack(pady=5)
+    for cat in expense_categories:
+        btn = tk.Button(expense_tab, text=cat, command=lambda c=cat: add_expense(c),
+                        width=15, bg="#f44336", fg=BTN_TEXT, font=("Helvetica", 12, "bold"))
+        btn.pack(pady=3)
 
     btn_expense = tk.Button(expense_tab, text="Add Expense", command=add_expense,
                             width=15, bg="#f44336", fg=BTN_TEXT, font=("Helvetica", 12, "bold"))
