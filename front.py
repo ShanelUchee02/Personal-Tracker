@@ -1,13 +1,14 @@
 import tkinter as tk
 from tkinter import messagebox, ttk
 import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import json
 import os
 
-# --- Theme Colors (CSS-like) ---
-BG_COLOR = "#c1dffd"
-FG_COLOR = "#0A0000"
-BTN_COLOR = "#1A54F5"
+# --- Theme Colors ---
+BG_COLOR = "#f0f4f8"
+FG_COLOR = "#333333"
+BTN_COLOR = "#4CAF50"
 BTN_TEXT = "#ffffff"
 ENTRY_BG = "#ffffff"
 
@@ -36,13 +37,21 @@ def load_user_data(username):
 username = None
 balance = 0
 transactions = []
+canvas = None  # for pie chart
 
-# --- Expense Report ---
-def view_report():
+# --- Update Pie Chart in Overview ---
+def update_pie_chart(frame):
+    global canvas
+
+    # Clear old chart if it exists
+    if canvas:
+        canvas.get_tk_widget().destroy()
+
     expense_data = [t for t in transactions if t[0] == "Expense"]
 
     if not expense_data:
-        messagebox.showinfo("Report", "No expenses to show!")
+        lbl_no_data = tk.Label(frame, text="No expenses yet", font=("Helvetica", 12), bg=BG_COLOR, fg=FG_COLOR)
+        lbl_no_data.pack()
         return
 
     category_totals = {}
@@ -52,17 +61,19 @@ def view_report():
     categories = list(category_totals.keys())
     amounts = list(category_totals.values())
 
-    plt.figure(figsize=(6, 6))
-    plt.pie(amounts, labels=categories, autopct="%1.1f%%", startangle=90)
-    plt.title("Expenses by Category")
-    plt.show()
+    fig, ax = plt.subplots(figsize=(4, 4), dpi=100)
+    ax.pie(amounts, labels=categories, autopct="%1.1f%%", startangle=90)
+    ax.set_title("Expenses by Category")
+
+    canvas = FigureCanvasTkAgg(fig, master=frame)
+    canvas.draw()
+    canvas.get_tk_widget().pack(pady=10)
 
 # --- Transactions ---
-def add_income():
+def add_income(category):
     global balance
     try:
         amount = float(entry_income.get())
-        category = income_var.get()
         balance += amount
         transactions.append(("Income", amount, category))
         entry_income.delete(0, tk.END)
@@ -70,11 +81,10 @@ def add_income():
     except ValueError:
         messagebox.showerror("Error", "Enter a valid number for income")
 
-def add_expense():
+def add_expense(category):
     global balance
     try:
         amount = float(entry_expense.get())
-        category = expense_var.get()
         balance -= amount
         transactions.append(("Expense", amount, category))
         entry_expense.delete(0, tk.END)
@@ -89,7 +99,22 @@ def update_ui():
     for t in transactions:
         listbox.insert(tk.END, f"{t[0]} ({t[2]}): R{t[1]:.2f}")
 
+    # Update overview
+    total_income = sum(t[1] for t in transactions if t[0] == "Income")
+    total_expenses = sum(t[1] for t in transactions if t[0] == "Expense")
+    num_transactions = len(transactions)
+
+    lbl_overview_balance.config(text=f"Balance: R{balance:.2f}")
+    lbl_overview_income.config(text=f"Total Income: R{total_income:.2f}")
+    lbl_overview_expense.config(text=f"Total Expenses: R{total_expenses:.2f}")
+    lbl_overview_count.config(text=f"Transactions: {num_transactions}")
+
     save_user_data(username, balance, transactions)
+
+    # Refresh pie chart
+    for widget in chart_frame.winfo_children():
+        widget.destroy()
+    update_pie_chart(chart_frame)
 
 # --- Login ---
 def login():
@@ -106,11 +131,40 @@ def login():
 
 # --- Main App with Tabs ---
 def show_main_app():
-    global lbl_balance, entry_income, entry_expense, listbox, income_var, expense_var
+    global lbl_balance, entry_income, entry_expense, listbox
+    global lbl_overview_balance, lbl_overview_income, lbl_overview_expense, lbl_overview_count, chart_frame
 
     # Notebook (Tabs)
     notebook = ttk.Notebook(root)
     notebook.pack(expand=True, fill="both")
+
+    # --- Overview Tab ---
+    overview_tab = tk.Frame(notebook, bg=BG_COLOR)
+    notebook.add(overview_tab, text="Overview")
+
+    lbl_overview_title = tk.Label(overview_tab, text="📊 Overview", font=("Helvetica", 16, "bold"),
+                                  fg=FG_COLOR, bg=BG_COLOR)
+    lbl_overview_title.pack(pady=10)
+
+    lbl_overview_balance = tk.Label(overview_tab, text="Balance: R0.00",
+                                    font=("Helvetica", 14), fg=FG_COLOR, bg=BG_COLOR)
+    lbl_overview_balance.pack(pady=5)
+
+    lbl_overview_income = tk.Label(overview_tab, text="Total Income: R0.00",
+                                   font=("Helvetica", 12), fg=FG_COLOR, bg=BG_COLOR)
+    lbl_overview_income.pack(pady=5)
+
+    lbl_overview_expense = tk.Label(overview_tab, text="Total Expenses: R0.00",
+                                    font=("Helvetica", 12), fg=FG_COLOR, bg=BG_COLOR)
+    lbl_overview_expense.pack(pady=5)
+
+    lbl_overview_count = tk.Label(overview_tab, text="Transactions: 0",
+                                  font=("Helvetica", 12), fg=FG_COLOR, bg=BG_COLOR)
+    lbl_overview_count.pack(pady=5)
+
+    # Chart area
+    chart_frame = tk.Frame(overview_tab, bg=BG_COLOR)
+    chart_frame.pack(pady=10)
 
     # --- Income Tab ---
     income_tab = tk.Frame(notebook, bg=BG_COLOR)
@@ -132,10 +186,6 @@ def show_main_app():
                         width=15, bg=BTN_COLOR, fg=BTN_TEXT, font=("Helvetica", 12, "bold"))
         btn.pack(pady=3)
 
-    btn_income = tk.Button(income_tab, text="Add Income", command=add_income,
-                           width=15, bg=BTN_COLOR, fg=BTN_TEXT, font=("Helvetica", 12, "bold"))
-    btn_income.pack(pady=10)
-
     # --- Expense Tab ---
     expense_tab = tk.Frame(notebook, bg=BG_COLOR)
     notebook.add(expense_tab, text="Expenses")
@@ -145,6 +195,7 @@ def show_main_app():
     lbl_expense.pack(pady=5)
     entry_expense = tk.Entry(expense_tab, font=("Helvetica", 12), bg=ENTRY_BG)
     entry_expense.pack(pady=5)
+
     lbl_expense_cat = tk.Label(expense_tab, text="Choose Category:", font=("Helvetica", 12),
                                fg=FG_COLOR, bg=BG_COLOR)
     lbl_expense_cat.pack(pady=5)
@@ -154,10 +205,6 @@ def show_main_app():
         btn = tk.Button(expense_tab, text=cat, command=lambda c=cat: add_expense(c),
                         width=15, bg="#f44336", fg=BTN_TEXT, font=("Helvetica", 12, "bold"))
         btn.pack(pady=3)
-
-    btn_expense = tk.Button(expense_tab, text="Add Expense", command=add_expense,
-                            width=15, bg="#f44336", fg=BTN_TEXT, font=("Helvetica", 12, "bold"))
-    btn_expense.pack(pady=10)
 
     # --- Transactions Tab ---
     transactions_tab = tk.Frame(notebook, bg=BG_COLOR)
@@ -171,21 +218,13 @@ def show_main_app():
                          bg="#ffffff", fg="#333333", highlightbackground="#ccc")
     listbox.pack(pady=10)
 
-    # --- Report Tab ---
-    report_tab = tk.Frame(notebook, bg=BG_COLOR)
-    notebook.add(report_tab, text="Report")
-
-    btn_report = tk.Button(report_tab, text="View Expense Report", command=view_report,
-                           width=20, bg="#2196F3", fg="white", font=("Helvetica", 12, "bold"))
-    btn_report.pack(pady=30)
-
     update_ui()
 
 # --- Root Window ---
 root = tk.Tk()
 root.title("Expense Tracker")
 root.configure(bg=BG_COLOR)
-root.geometry("500x500")
+root.geometry("500x600")
 
 # --- Login Frame ---
 login_frame = tk.Frame(root, bg=BG_COLOR, pady=20)
